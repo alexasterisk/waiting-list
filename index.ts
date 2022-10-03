@@ -52,7 +52,7 @@ client.on('interactionCreate', async interaction => {
             await keyv.set(user.id + 'dm_user', dmUser);
             await keyv.set(user.id + 'mention_user', mentionUser);
 
-            await interaction.editReply('Alright! You\'re preferences have been saved.');
+            await interaction.editReply('Alright! Your* preferences have been saved.');
             return;
         case 'queue':
             let queue = (await keyv.get(guild.id + 'queue') as string).split('/');
