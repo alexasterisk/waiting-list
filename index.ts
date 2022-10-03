@@ -96,71 +96,72 @@ const fetchAllData = async (guild: Guild, user: User) => {
 client.on('voiceStateUpdate', async (oldState, newState) => {
     const old = oldState;
     const { channel, guild, member } = newState;
+    keyv.get(guild.id + 'setup')
+        .then(() => {
+            if (!member || member.user.bot) return;
 
-    if ((await keyv.get(guild.id + 'setup')) ?? false) return; // dont run if its not setup
-    if (!member || member.user.bot) return;
-
-    fetchAllData(guild, member.user)
-        .then(async data => {
-            if (!member) return; // because ts wouldn't shut up
-
-            // handle for when a user joins the queue
-            if (channel === data.waitingVC && old.channel !== channel) {
-                data.queue.push(member.user.id);
-                await keyv.set(guild.id + 'queue', data.queue.join('/'));
-
-                // channel was not full, dont bother
-                if (!data.mainVC.full) {
-                    data.updateChannel.send(`<@${member.user.id}>, no need to join the queue for <#${data.mainVC.id}>!`);
-                    member.voice.setChannel(data.mainVC, 'WL - Insufficient members in Main VC.');
-                    return;
-                }
-
-                data.updateChannel.send(`**${member.displayName}** has joined the queue for <#${data.mainVC.id}> \`(${data.queue.length})\``);
-                if (data.dmUser) member.send(`You've joined the queue for <#${data.mainVC.id}>!\nTo stop receiving DMs, use \`/edit\`.`);
-
-            // handle for when a user leaves the queue
-            } else if (old.channel === data.waitingVC && old.channel !== channel) {
-                data.queue = data.queue.filter(id => id !== member.user.id);
-                await keyv.set(guild.id + 'queue', data.queue.join('/'));
-
-                data.updateChannel.send(`**${member.displayName}** has left the queue for <#${data.mainVC.id}> \`(${data.queue.length})\``);
-
-                // notify users of their new positions
-                data.queue.forEach(async (userId, i) => {
-                    const user = client.users.cache.get(userId);
-                    if (user) {
-                        if (await keyv.get(user.id + 'dm_user') ?? false) {
-                            user.send(`Your position waiting for <#${data.mainVC.id}> has changed!\nYou're now in position **${i}** of **${data.queue.length}**!`);
+            fetchAllData(guild, member.user)
+                .then(async data => {
+                    if (!member) return; // because ts wouldn't shut up
+        
+                    // handle for when a user joins the queue
+                    if (channel === data.waitingVC && old.channel !== channel) {
+                        data.queue.push(member.user.id);
+                        await keyv.set(guild.id + 'queue', data.queue.join('/'));
+        
+                        // channel was not full, dont bother
+                        if (!data.mainVC.full) {
+                            data.updateChannel.send(`<@${member.user.id}>, no need to join the queue for <#${data.mainVC.id}>!`);
+                            member.voice.setChannel(data.mainVC, 'WL - Insufficient members in Main VC.');
+                            return;
                         }
-                        if (await keyv.get(user.id + 'mention_user') ?? false) {
-                            data.updateChannel.send(`<@${user.id}>, your position waiting for <#${data.mainVC.id}> has changed!\nYou're now in position **${i}** of **${data.queue.length}**!`);
+        
+                        data.updateChannel.send(`**${member.displayName}** has joined the queue for <#${data.mainVC.id}> \`(${data.queue.length})\``);
+                        if (data.dmUser) member.send(`You've joined the queue for <#${data.mainVC.id}>!\nTo stop receiving DMs, use \`/edit\`.`);
+        
+                    // handle for when a user leaves the queue
+                    } else if (old.channel === data.waitingVC && old.channel !== channel) {
+                        data.queue = data.queue.filter(id => id !== member.user.id);
+                        await keyv.set(guild.id + 'queue', data.queue.join('/'));
+        
+                        data.updateChannel.send(`**${member.displayName}** has left the queue for <#${data.mainVC.id}> \`(${data.queue.length})\``);
+        
+                        // notify users of their new positions
+                        data.queue.forEach(async (userId, i) => {
+                            const user = client.users.cache.get(userId);
+                            if (user) {
+                                if (await keyv.get(user.id + 'dm_user') ?? false) {
+                                    user.send(`Your position waiting for <#${data.mainVC.id}> has changed!\nYou're now in position **${i}** of **${data.queue.length}**!`);
+                                }
+                                if (await keyv.get(user.id + 'mention_user') ?? false) {
+                                    data.updateChannel.send(`<@${user.id}>, your position waiting for <#${data.mainVC.id}> has changed!\nYou're now in position **${i}** of **${data.queue.length}**!`);
+                                }
+                            }
+                        });
+        
+                    // a spot in the main vc has opened up
+                    } else if (old.channel === data.mainVC && channel !== old.channel) {
+                        if (!data.mainVC.full && data.queue.length > 0) {
+                            const userId = data.queue.shift() as string;
+                            const member = guild.members.cache.get(userId);
+                            consola.log(member);
+                            if (member) {
+                                member.voice.setChannel(data.mainVC, 'WL - Spot opened in Main VC.');
+                                if (await keyv.get(userId + 'dm_user') ?? false) {
+                                    member.send(`You've been moved into <#${data.mainVC.id}>!\nTo stop receiving DMs, please run \`/edit\`.`);
+                                }
+                                if (await keyv.get(userId + 'mention_user') ?? false) {
+                                    data.updateChannel.send(`<@${userId}>, you've been moved into <#${data.mainVC.id}>!`);
+                                }
+                            }
                         }
                     }
+                })
+                .catch(async err => {
+                    (await newState.guild.fetchOwner()).send(err);
+                    consola.error(err);
                 });
-
-            // a spot in the main vc has opened up
-            } else if (old.channel === data.mainVC && channel !== old.channel) {
-                if (!data.mainVC.full && data.queue.length > 0) {
-                    const userId = data.queue.shift() as string;
-                    const member = guild.members.cache.get(userId);
-                    consola.log(member);
-                    if (member) {
-                        member.voice.setChannel(data.mainVC, 'WL - Spot opened in Main VC.');
-                        if (await keyv.get(userId + 'dm_user') ?? false) {
-                            member.send(`You've been moved into <#${data.mainVC.id}>!\nTo stop receiving DMs, please run \`/edit\`.`);
-                        }
-                        if (await keyv.get(userId + 'mention_user') ?? false) {
-                            data.updateChannel.send(`<@${userId}>, you've been moved into <#${data.mainVC.id}>!`);
-                        }
-                    }
-                }
-            }
         })
-        .catch(async err => {
-            (await newState.guild.fetchOwner()).send(err);
-            consola.error(err);
-        });
 });
 
 // login
