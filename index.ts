@@ -86,7 +86,6 @@ const fetchAllData = async (guild: Guild, user: User) => {
 
     data.queue = data.queue.filter(v => v !== '-');
     data.queue = data.queue.filter(v => v !== '');
-    consola.log(data.queue);
 
     if (!data.waitingVC) return Promise.reject('Sorry to message you, but please run `/setup` in your server for Waiting List to work!');
     return Promise.resolve(data);
@@ -104,7 +103,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             // handle for when a user joins the queue
             if (channel === data.waitingVC && old.channel !== channel) {
-                consola.info('joined queue');
                 data.queue.push(member.user.id);
                 await keyv.set(guild.id + 'queue', data.queue.join('/'));
 
@@ -120,7 +118,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             // handle for when a user leaves the queue
             } else if (old.channel === data.waitingVC && old.channel !== channel) {
-                consola.info('left queue');
                 data.queue = data.queue.filter(id => id !== member.user.id);
                 await keyv.set(guild.id + 'queue', data.queue.join('/'));
 
