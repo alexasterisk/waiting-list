@@ -52,7 +52,9 @@ client.on('interactionCreate', async interaction => {
             await interaction.editReply('Alright! You\'re preferences have been saved.');
             return;
         case 'queue':
-            const queue = (await keyv.get(guild.id + 'queue') as string).split('/');
+            let queue = (await keyv.get(guild.id + 'queue') as string).split('/');
+            queue = queue.filter(v => v !== '-');
+            queue = queue.filter(v => v !== '');
             let desc = '';
 
             consola.log(queue.length);
