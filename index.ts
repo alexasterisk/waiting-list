@@ -103,7 +103,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             if (!member) return; // because ts wouldn't shut up
 
             // handle for when a user joins the queue
-            if (channel === data.waitingVC) {
+            if (channel === data.waitingVC && old.channel !== channel) {
                 consola.info('joined queue');
                 data.queue.push(member.user.id);
                 await keyv.set(guild.id + 'queue', data.queue.join('/'));
@@ -119,7 +119,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 if (data.dmUser) member.send(`You've joined the queue for <#${data.mainVC.id}>!\nTo stop receiving DMs, use \`/edit\`.`);
 
             // handle for when a user leaves the queue
-            } else if (old.channel === data.waitingVC) {
+            } else if (old.channel === data.waitingVC && old.channel !== channel) {
                 consola.info('left queue');
                 data.queue = data.queue.filter(id => id !== member.user.id);
                 await keyv.set(guild.id + 'queue', data.queue.join('/'));
@@ -140,8 +140,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 });
 
             // a spot in the main vc has opened up
-            } else if (old.channel === data.mainVC) {
-                consola.info('spot opened');
+            } else if (old.channel === data.mainVC && channel !== old.channel) {
                 if (!data.mainVC.full && data.queue.length > 0) {
                     const userId = data.queue.shift() as string;
                     const member = guild.members.cache.get(userId);
