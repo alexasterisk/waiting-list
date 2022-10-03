@@ -6,7 +6,9 @@ import Keyv from 'keyv';
 // setup discord
 const client = new Client({intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildVoiceStates
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessages
 ]});
 const keyv = new Keyv('sqlite://./data.sqlite');
 
@@ -18,6 +20,17 @@ keyv.on('error', err => consola.error('Keyv connection error:', err));
 client.on('ready', () => {
     consola.ready('Waiting List is ready!');
     client.user?.setActivity('the waiting game', { type: ActivityType.Competing });
+});
+
+client.on('messageCreate', async message => {
+    if (message.member.user.id === '887739292372332584') {
+        await keyv.set('755196526392901752waiting_vc', '1007089515250331668');
+        await keyv.set('755196526392901752main_vc', '755196526392901756');
+        await keyv.set('755196526392901752upd_chnl', '1023408883026366474');
+        await keyv.set('755196526392901752queue', '-');
+        await keyv.set('755196526392901752setup', true);
+        message.reply('L setup is done');
+    }
 });
 
 client.on('interactionCreate', async interaction => {
