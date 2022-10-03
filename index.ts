@@ -39,6 +39,7 @@ client.on('interactionCreate', async interaction => {
             await keyv.set(guild.id + 'main_vc', mainVC.id);
             await keyv.set(guild.id + 'upd_chnl', updateChannel.id);
             await keyv.set(guild.id + 'queue', '-');
+            await keyv.set(guild.id + 'setup', true);
 
             await interaction.editReply('You\'ve finished setting up the bot! It is now ready for use.');
             return;
@@ -89,14 +90,14 @@ const fetchAllData = async (guild: Guild, user: User) => {
     data.queue = data.queue.filter(v => v !== '-');
     data.queue = data.queue.filter(v => v !== '');
 
-    if (!data.waitingVC) return Promise.reject('Sorry to message you, but please run `/setup` in your server for Waiting List to work!');
-    return Promise.resolve(data);
+    return data;
 }
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
     const old = oldState;
     const { channel, guild, member } = newState;
 
+    if (await keyv.get(guild.id + 'setup') ?? false) return; // dont run if its not setup
     if (!member || member.user.bot) return;
 
     fetchAllData(guild, member.user)
