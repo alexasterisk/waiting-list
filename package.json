@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "tsc && node index.js",
     "dev": "nodemon -e ts --exec \"npm run compile\"",
-    "build": "node deploy-commands.js"
+    "build": "node deploy-commands.js",
+    "pull-run": "git pull && npm run dev"
   },
   "keywords": [],
   "author": "",
