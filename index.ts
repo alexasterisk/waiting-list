@@ -97,7 +97,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     const old = oldState;
     const { channel, guild, member } = newState;
 
-    if (await keyv.get(guild.id + 'setup') ?? false) return; // dont run if its not setup
+    if ((await keyv.get(guild.id + 'setup')) ?? false) return; // dont run if its not setup
     if (!member || member.user.bot) return;
 
     fetchAllData(guild, member.user)
