@@ -1,4 +1,4 @@
 # TODO
-Make it so people who get immediately moved dont send two messages "no need to join queue" "has left the queue"
-Maybe even send no message at all for when they get immediately moved to not spam users?
-Send minimal messages - maybe directly message users instead
++ Make it so people who get immediately moved dont send two messages "no need to join queue" "has left the queue"
++ Maybe even send no message at all for when they get immediately moved to not spam users?
++ Send minimal messages - maybe directly message users instead
