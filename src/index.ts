@@ -38,6 +38,16 @@ client.keyv.on('error', err => consola.error('Keyv connection error:', err));
     consola.success('Finished clearing old caches!');
 })();
 
+
+(async () => {
+    await client.keyv?.set('755196526392901752waiting_vc', '1007089515250331668');
+    await client.keyv?.set('755196526392901752main_vc', '755196526392901756');
+    await client.keyv?.set('755196526392901752upd_chnl', '1023408883026366474');
+    await client.keyv?.set('755196526392901752queue', '-');
+    await client.keyv?.set('755196526392901752setup', true);
+    consola.success('setup eggplant\'s server');
+})();
+
 // setup commands
 
 consola.info('Starting to load interactions...');
