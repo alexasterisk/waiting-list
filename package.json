@@ -1,26 +1,21 @@
 {
-  "name": "waiting-list",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "compile": "tsc && node index.js",
-    "dev": "nodemon -e ts --exec \"npm run compile\"",
-    "build": "node deploy-commands.js",
-    "pull-run": "git pull && npm run dev"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "discord.js": "^14.5.0"
-  },
-  "devDependencies": {
-    "@keyv/sqlite": "^3.6.1",
-    "consola": "^2.15.3",
-    "dotenv": "^16.0.3",
-    "keyv": "^4.5.0",
-    "nodemon": "^2.0.20",
-    "typescript": "^4.8.4"
-  }
+    "name": "icymx",
+    "version": "1.0.0",
+    "description": "A Discord bot built with blood",
+    "scripts": {
+        "deploy": "tsc && node out/deploy-commands.js",
+        "start": "nodemon -e ts --exec \"tsc && node out/index.js\"",
+        "pull-run": "git pull && npm run start"
+    },
+    "devDependencies": {
+        "@keyv/sqlite": "^3.6.1",
+        "consola": "^2.15.3",
+        "dotenv": "^16.0.3",
+        "keyv": "^4.5.0",
+        "nodemon": "^2.0.20",
+        "typescript": "^4.8.4"
+    },
+    "dependencies": {
+        "discord.js": "^14.5.0"
+    }
 }

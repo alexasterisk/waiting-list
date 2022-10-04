@@ -1,5 +1,11 @@
-node_modules
+# Node files
 package-lock.json
-.env
+node_modules
+
+# JS files
+out
+
+# misc
 data.sqlite
-index.js
+deployed.json
+.env
