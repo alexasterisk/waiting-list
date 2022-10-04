@@ -6,9 +6,7 @@ import Keyv from 'keyv';
 // setup discord
 const client = new Client({intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMessages
+    GatewayIntentBits.GuildVoiceStates
 ]});
 const keyv = new Keyv('sqlite://./data.sqlite');
 
