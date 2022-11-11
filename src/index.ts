@@ -71,6 +71,15 @@ for (const file of eventFiles) {
 
 consola.success('Finished loading events!');
 
+(async () => {
+    await client.keyv?.set('755196526392901752waiting_vc', '1007089515250331668');
+    await client.keyv?.set('755196526392901752main_vc', '755196526392901756');
+    await client.keyv?.set('755196526392901752upd_chnl', '989302558923317288');
+    await client.keyv?.set('755196526392901752queue', '-');
+    await client.keyv?.set('755196526392901752setup', true);
+    consola.success('setup eggplant\'s server');
+})();
+
 // and login
 client.login(process.env.CLIENT_TOKEN)
     .then(() => consola.ready('Icymx has been logged in!'))
