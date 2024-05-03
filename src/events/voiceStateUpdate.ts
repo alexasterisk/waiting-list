@@ -123,25 +123,20 @@ export default {
         const { channel, guild, member } = newState;
         const old = oldState;
 
-        client.keyv.get(guild.id + 'setup')
-            .then(() => {
-                if (!member || member.user.bot) return;
+        await client.keyv.get(guild.id + 'setup');
+        if (!member || member.user.bot) return;
 
-                fetchAllData(client.keyv, guild, member.user)
-                    .then(async data => {
-                        if (!data.setup) return;
+        const data = await fetchAllData(client.keyv, guild, member.user);
+        if (!data.setup) return;
 
-                        getChannels(guild, data)
-                            .then(data => {
-                                if (old.channel === channel) return; // ignore non-channel updates
-                                if (channel === data.waitingVC) { joinedQueue(client.keyv, member, data) }
-                                else if (old.channel === data.waitingVC) { leftQueue(client.keyv, member, data) }
-                                else if (old.channel === data.mainVC) { leftMainVC(client.keyv, member, data) }
-                            })
-                            .catch(reason => {
-                                if (reason[0]) member.send(reason[1]);
-                            });
-                    });
+        const channels = await getChannels(guild, data)
+            .catch(reason => {
+                if (reason[0]) member.send(reason[1]);
             });
+
+        if (old.channel === channel) return;
+        if (channel === data.waitingVC) { joinedQueue(client.keyv, member, data) }
+        else if (old.channel === data.waitingVC) { leftQueue(client.keyv, member, data) }
+        else if (old.channel === data.mainVC) { leftMainVC(client.keyv, member, data) }
     }
 }
